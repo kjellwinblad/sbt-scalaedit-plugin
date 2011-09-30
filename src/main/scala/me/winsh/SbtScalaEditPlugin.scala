@@ -9,7 +9,7 @@ object SbtScalaEditPlugin extends Plugin {
 
   def scalaEditCommand = Command.args("scalaedit", "[File list...]") { (state, args) => 
     val ret = args.mkString(" ") !
-    println("Hejsan")
+
     state
   }
 
