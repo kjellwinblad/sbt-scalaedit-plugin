@@ -117,7 +117,7 @@ object SbtScalaEditPlugin extends Plugin {
     println("|--------------------|")
     print("|")
     val downloadedFile = baseDir / fileName
-    downloadedFile.mkdirs()
+    baseDir.mkdirs()
     val output = new FileOutputStream(downloadedFile)
 
     @tailrec
