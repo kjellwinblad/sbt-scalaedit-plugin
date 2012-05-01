@@ -18,9 +18,9 @@ object SbtScalaEditPlugin extends Plugin {
 
   override lazy val settings = Seq(Keys.commands ++= List(scalaEditCommand, scalaEditUpgradeCommand))
 
-	private val newVersionFeedURLString = "http://code.google.com/feeds/p/scala-edit/downloads/basic"
+  private val newVersionFeedURLString = "http://code.google.com/feeds/p/scala-edit/downloads/basic"
 
-	private val remoteFilesURLString = "http://scala-edit.googlecode.com/files/"
+  private val remoteFilesURLString = "http://scala-edit.googlecode.com/files/"
 
   private val versionNumberRegExp = """.*-.*-(\d*)\.(\d*)\.(\d*).*""".r
 
@@ -28,10 +28,10 @@ object SbtScalaEditPlugin extends Plugin {
 
   private def excutableJarPath = {
 
-		//Get candidate jars
+    //Get candidate jars
     val marchingJars: Seq[File] = (baseDir ** "scalaedit*.jar").get
 
-		//Sort the list to get tne latest version first
+    //Sort the list to get tne latest version first
     val sortedJars = marchingJars.toList.sortWith((e1, e2) => {
 
       def versionNumberList(file: File) = versionNumberRegExp.unapplySeq(file.getName) match {
@@ -51,62 +51,62 @@ object SbtScalaEditPlugin extends Plugin {
 
     })
 
-		//Return the head of the list
+    //Return the head of the list
     sortedJars.headOption
 
   }
 
-	/**
-	 * Finds the latest version and the URL to the file from the google code page
-	 */
+  /**
+   * Finds the latest version and the URL to the file from the google code page
+   */
   private def retriveLatestVersionAndURL() = {
 
-  	 //Fetch XML feed with version history
+    //Fetch XML feed with version history
     var url = new URL(newVersionFeedURLString)
     val connection = url.openConnection
     val input = connection.getInputStream
     val root = XML.load(input)
     input.close
 
-		//Finds XML elemnt containing file name and version number
+    //Finds XML elemnt containing file name and version number
     val latestEntry = (root \\ "entry").head
     val webURL = (latestEntry \ "id").text.trim
-    
+
     val fileName = webURL.substring(webURL.lastIndexOf("/"))
 
-		//Finds version from file name
+    //Finds version from file name
     val versionNumberRegExp(v1, v2, v3) = fileName
     val version = v1 + "." + v2 + "." + v3
 
     (version, fileName)
   }
 
-	/**
-	 * Returns the Some(availableVersion) or None
-	 */
+  /**
+   * Returns the Some(availableVersion) or None
+   */
   private def currentVersion = excutableJarPath match {
-  	case None => None
-  	case Some(path) => versionNumberRegExp.unapplySeq(path.getName) match {
-        case None => None
-        case Some(l) => Some(l.mkString("."))
-      }
+    case None => None
+    case Some(path) => versionNumberRegExp.unapplySeq(path.getName) match {
+      case None => None
+      case Some(l) => Some(l.mkString("."))
+    }
   }
 
-	/**
-	 * Returns the latest version on googlecode
-	 */
+  /**
+   * Returns the latest version on googlecode
+   */
   private def latestVersion = retriveLatestVersionAndURL()._1
 
-	/**
-	 * Downloads the latest jar file from googlecode and returns the path to the file
-	 */
+  /**
+   * Downloads the latest jar file from googlecode and returns the path to the file
+   */
   private def downloadLatestAndGetJarPath() = {
 
     println("Fetching file information...")
 
     val (latestVersion, fileName) = retriveLatestVersionAndURL()
 
-		//Download the file
+    //Download the file
     var url = new URL(remoteFilesURLString + fileName)
     var connection = url.openConnection
     val input = connection.getInputStream
@@ -156,9 +156,9 @@ object SbtScalaEditPlugin extends Plugin {
 
   }
 
-	/**
-	 * Command to start scalaedit
-	 */
+  /**
+   * Command to start scalaedit
+   */
   def scalaEditCommand = Command.command("scalaedit") { (state) =>
 
     val jarPath = excutableJarPath match {
@@ -171,17 +171,17 @@ object SbtScalaEditPlugin extends Plugin {
     state
   }
 
-	/**
-	 * Command to upgrade ScalaEdit
-	 */
+  /**
+   * Command to upgrade ScalaEdit
+   */
   def scalaEditUpgradeCommand = Command.command("scalaedit-upgrade") { (state) =>
 
-		if(currentVersion!=None && currentVersion.get==latestVersion)
-    	println("The current version is already the latest version.")
-		else{ 
-			downloadLatestAndGetJarPath()
-		}
-			
+    if (currentVersion != None && currentVersion.get == latestVersion)
+      println("The current version is already the latest version.")
+    else {
+      downloadLatestAndGetJarPath()
+    }
+
     state
   }
 
